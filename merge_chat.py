@@ -24,9 +24,9 @@ import codecs
 config = configparser.ConfigParser()
 config.read_file(codecs.open('conf.ini', 'r', 'UTF-8'))
 # 初始 FB 登入用的睡眠設定
-sleep_time = config['process_variables']['sleep_time']
+sleep_time = int(config['process_variables']['sleep_time'])
 # 重載 FB 聊天室的頻率設定
-reload_fb_chatbox_times = config['process_variables']['reload_fb_chatbox_times']
+reload_fb_chatbox_times = int(config['process_variables']['reload_fb_chatbox_times'])
 # 會常常用到的常數設定
 discord_channel_id = config['env']['discord_channel_id']
 discord_author_id = config['env']['discord_author_id']
@@ -68,13 +68,16 @@ def write_message (nick_name, message, source):
 # FB 擷取聊天室訊息
 # ======================================================
 # 直衝網頁然後手動登入再手動切回來
-fb_driver = webdriver.Chrome (config['env']['webdrive_path'])
+# fb_driver = webdriver.Chrome (config['env']['webdrive_path'])
+fb_driver = webdriver.Firefox (executable_path=config['env']['webdrive_path'])
+
+# fb_driver = webdriver.Firefox (executable_path='D:/Kai/tool/Drive/geckodriver.exe')
 fb_driver.implicitly_wait(sleep_time)
 fb_driver.get ('https://www.facebook.com/')
 fb_driver.implicitly_wait(sleep_time)
 live_url = fb_driver.find_elements_by_xpath("//input[@name='email']")
-fb_driver.find_element_by_xpath("//input[@name='email']").send_keys(config['env']['email'])
-fb_driver.find_element_by_xpath("//input[@name='pass']").send_keys(config['env']['password'])
+fb_driver.find_element_by_xpath("//input[@name='email']").send_keys(config['account']['email'])
+fb_driver.find_element_by_xpath("//input[@name='pass']").send_keys(config['account']['password'])
 fb_driver.implicitly_wait(sleep_time)
 fb_driver.find_element_by_id ('loginbutton').click()
 fb_driver.implicitly_wait(sleep_time)
@@ -86,7 +89,8 @@ for live_url_item in fb_driver.find_elements_by_xpath("//*[@href and @aria-label
     live_url = live_url_item.get_attribute('href')
     if live_url.find('?type=1') == -1:
         break
-fb_driver.get (live_url)
+live_url_item.click()
+# fb_driver.get (live_url)
 
 def search_old_message_in_new_message_index (last_message_list, message_list):
     start_index = 0
