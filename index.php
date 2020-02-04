@@ -11,6 +11,7 @@ header('Access-Control-Allow-Origin: *');
 
 if (count(array_diff_key(['op_code'=>null, 'data'=>null], $_POST)) > 0) {
     $return_data['op_result'] = -1;
+    $return_data['post'] = $_POST;
     echo json_encode ($return_data);
     return;
 }
