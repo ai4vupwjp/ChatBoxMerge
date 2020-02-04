@@ -5,8 +5,8 @@
 <body>
 <div>
     <table id = 'test_table'>
-        <!-- <tr><td><img src="D:\Kai\Kai_5\server_tools\icon\FB.png" style="width:18px;height:18px;"> 暱稱 說的內容</td></tr> -->
         <tr><td>
+            <img src="icon\FB.png" style="width:18px;height:18px;">
             <font size="4" color="#007979" face="微軟正黑體"><strong>暱稱</strong></font>
             <font size="4" color="#FFFFFF" face="微軟正黑體"><strong>說的內容</strong></font>
         </td>
@@ -16,19 +16,27 @@
 </body>
 <script src="https://code.jquery.com/jquery-3.3.1.js" integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>
 <script>
-    
+    // 實際上沒用到的三個變數且會逐漸累積起來未釋放, 須注意
     var message_list = [];
     var score_list = [];
     var nickname_list = [];
 
-    var wait_time = 2000;
+    var htmltag_list = [];
+    var htmltag_remove_time = [];
+    var unix_time = Math.floor(Date.now() / 1000);
 
-    // const message_from_discord = 0
-    // const message_from_twitch = 1
-    // const message_from_FB = 2
+    // 每次去訪問的間隔時間, 訊息滯留時間
+    const chatbox_reflash_intervals_time = 2000;
+    const message_stay_time = 30;
+    // 圖像的檔案名稱
     const image_src = {'0':'Discord','1':'twitch02','2':'FB','DC':'Discord'};
 
-    function add_message (nickname, message, score) {
+    const is_need_remove = false;
+    // todo: 圖像的路徑 path
+
+    // 讓訊息加入至畫面上
+    function add_message (nickname, message, score, remove_time)
+    {
         //先取得目前的row數
         let num = document.getElementById('test_table').rows.length;
         //建立新的tr 因為是從0開始算 所以目前的row數剛好為目前要增加的第幾個tr
@@ -36,34 +44,48 @@
         //建立新的td 而Tr.cells.length就是這個tr目前的td數
         html_tr = html_tr.insertCell(html_tr.cells.length);
         //而這個就是要填入td中的innerHTML
-        console.log (image_src);
-        console.log (score);
-        // console.log ('ID: ' + "message_index_" + message_list.length);
-        let html_script = '<tr><td><img src="C:\\Users\\death\\Desktop\\merge_chat\\icon\\'+image_src[score];
+        
+        let html_script = '<tr><td><img src="icon\\'+image_src[score];
         html_script = html_script + '.png" style="width:18px;height:18px;"> ';
         html_script = html_script + '<font size="4" color="#007979" face="微軟正黑體"><strong>';
         html_script = html_script + nickname;
-        html_script = html_script + '</strong></font><font size="4" color="#FFFFFF" face="微軟正黑體"><strong>';
+        html_script = html_script + '</strong></font><font size="4" color="#FFFFFF" face="微軟正黑體"><strong> ';
         html_script = html_script + message + '</strong></font></td></tr>';
-        // <font size="4" color="#007979" face="微軟正黑體"><strong>暱稱</strong></font>
-        // <font size="4" color="#FFFFFF" face="微軟正黑體"><strong>說的內容</strong></font>
-
-        // html_tr.innerHTML = '<tr><td><img src="C:\\Users\\death\\Desktop\\merge_chat\\icon\\'+image_src[score]+'.png" style="width:18px;height:18px;"> ' + nickname + ' 說: ' + message + '</td></tr>';
+        
         html_tr.innerHTML = html_script;
+        htmltag_list.push(html_tr);
+        htmltag_remove_time.push(remove_time);
     }
-    // 刷新檔案的方式
-    function reload_page() {
-        location.reload(true);
-        setTimeout(reload_page, wait_time);
-    }
-    function request_message () {
+    
+    function request_message ()
+    {
+        // 更新現在 unix 時間
+        unix_time = Math.floor(Date.now() / 1000);
+        // 移除到達消失時間的物件
+        if (is_need_remove == true)
+        {
+            let index = 0;
+            for (index = 0; index < htmltag_remove_time.length; index++)
+            {
+                if (htmltag_remove_time[index] > unix_time) {
+                    break;
+                }
+                htmltag_list[index].innerHTML = '<tr><td></td></tr>';
+                htmltag_remove_time[index] = null;
+            }
+            htmltag_list.splice(0, index);
+            htmltag_remove_time.splice(0, index);
+        }
+        // 確認
+        let message_remove_time = unix_time + message_stay_time;
+
         json_data = {
             'op_code': 'get_message',
             'data': message_list.length
         }
         // url: "http://114.45.8.85:8000/index.php",
         let request = $.ajax({
-            url: "http://36.225.165.241:8000/index.php",
+            url: "http://127.0.0.1:8000/index.php",
             type: "post",
             data: json_data,
             dataType: "json"
@@ -72,12 +94,12 @@
         request.done(function(resultMsg) {
             console.log ('Done');
             console.log (resultMsg);
-            setTimeout(request_message, wait_time);
+            setTimeout(request_message, chatbox_reflash_intervals_time);
             if (resultMsg['message_list'].length <= 0) {
                 return;
             }
             for (let index = 0; index < resultMsg['message_list'].length; index++) {
-                add_message (resultMsg['nickname_list'][index], resultMsg['message_list'][index], resultMsg['score_list'][index]);
+                add_message (resultMsg['nickname_list'][index], resultMsg['message_list'][index], resultMsg['score_list'][index], message_remove_time);
                 message_list.push(resultMsg['message_list'][index]);
                 score_list.push(resultMsg['score_list'][index]);
                 nickname_list.push(resultMsg['nickname_list'][index]);
@@ -90,10 +112,17 @@
         request.fail(function(jqXHR,textStatus) {
             console.log ('Fail');
             console.log (textStatus);
-            setTimeout(request_message, wait_time);
+            setTimeout(request_message, chatbox_reflash_intervals_time);
         });
     }
-    setTimeout(request_message, wait_time);
+    setTimeout(request_message, chatbox_reflash_intervals_time);
+    
+    // 刷新檔案的方式, 暫未用到
+    // function reload_page()
+    // {
+    //     location.reload(true);
+    //     setTimeout(reload_page, chatbox_reflash_intervals_time);
+    // }
 
 </script>
 </html>
