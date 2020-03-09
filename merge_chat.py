@@ -70,10 +70,10 @@ def write_message (nick_name, message, source):
 # FB 擷取聊天室訊息
 # ======================================================
 # 直衝網頁然後手動登入再手動切回來
-# fb_driver = webdriver.Chrome (config['env']['webdrive_path'])
-fb_driver = webdriver.Firefox (executable_path=config['env']['webdrive_path'])
+fb_driver = webdriver.Chrome (config['env']['webdrive_path'])
+# fb_driver = webdriver.Firefox (executable_path=config['env']['webdrive_path'])
 
-# fb_driver = webdriver.Firefox (executable_path='D:/Kai/tool/Drive/geckodriver.exe')
+# # fb_driver = webdriver.Firefox (executable_path='D:/Kai/tool/Drive/geckodriver.exe')
 fb_driver.implicitly_wait(sleep_time)
 fb_driver.get ('https://www.facebook.com/')
 fb_driver.implicitly_wait(sleep_time)
@@ -136,7 +136,7 @@ def start_parser_facebook_chat (fb_driver):
     # todo: FB 聊天室最大訊息量只有 100 (待多次驗證)
     last_message_list = []
     time.sleep(reload_fb_chatbox_times)
-    class_name_ufilist_webelement = fb_driver.find_elements_by_xpath('//div[@class="UFIList" and last()]')
+    class_name_ufilist_webelement = fb_driver.find_elements_by_xpath('//div[@class="UFIList"]')
     for item in class_name_ufilist_webelement:
         print('item')
         print(item.text)
@@ -144,8 +144,8 @@ def start_parser_facebook_chat (fb_driver):
     while True:
         time.sleep(reload_fb_chatbox_times)
         # fb_driver.refresh()
-        real_message_list = []
-        real_nickname_list = []
+        message_list = []
+        nickname_list = []
         print('Start get info')
         
         # XPath 教學
@@ -155,11 +155,10 @@ def start_parser_facebook_chat (fb_driver):
         # https://selenium-python.readthedocs.io/api.html
         # http://flintx.me/2017/08/29/selenium-python-spider/
 
-        # 這邊不抓 span 只抓長度 可能可以判斷是否為玩家 而非系統訊息
         # five_latest_message_webelements = class_name_ufilist_webelement.find_elements_by_xpath('./div/div/div[position() > last()-5]/div/div/div/div/div/div/div/div/div/div/span/div/span[last()]/span/span/span')
         
         five_latest_message_webelements = class_name_ufilist_webelement.find_elements_by_xpath('./div/div/div[position() > last()-20]/div/div/div/div/div/div/div/div/div/div/span/div[count(*)>1]')
-        # 理論上除非狂刷不然這養是不會出現 元素已經 lose 的問題的
+        # 理論上除非狂刷不然這樣是不會出現 元素已經 lose 的問題的
         for item in five_latest_message_webelements:
             # todo: 假如 XPath 找不到呢 ?
             nickname_item = item.find_element_by_xpath('./span[1]/span')
@@ -172,94 +171,22 @@ def start_parser_facebook_chat (fb_driver):
                 print('Error class not UFICommentBody')
                 print(message_item.get_attribute('class'))
                 continue
-            # print(nickname_item.text)
-            # print(message_item.text)
-            real_message_list.append (message_item.text)
-            real_nickname_list.append (nickname_item.text)
+            message_list.append (message_item.text)
+            nickname_list.append (nickname_item.text)
         
-
-        # parent_list = fb_driver.find_elements_by_xpath('//div[@class="UFIList"]/div/div/div')
-        # message_list = fb_driver.find_elements_by_class_name ('UFICommentBody')
-        # message_nickname_list = fb_driver.find_elements_by_class_name ('UFICommentActorName')
-
-        # # 發生錯誤代表 頁面剛好被刷新, 元件已經消失無法獲取屬性
-        
-        # # 取訊息
-        # try:
-        #     for index in range (len (parent_list)):
-        #         if parent_list[index].text == '':
-        #             continue
-        #         real_message_list.append (parent_list[index].text)
-        # except BaseException:
-        #     real_message_list = []
-        #     print('element too old already lose')
-        #     traceback.print_exc()
-        # # 再取暱稱
-        # try:
-        #     for index in range (len (message_nickname_list)):
-        #         if message_nickname_list[index].text == '':
-        #             continue
-        #         real_nickname_list.append (message_nickname_list[index].text)
-        # except BaseException:
-        #     real_nickname_list = []
-        #     print('element too old already lose')
-        #     traceback.print_exc()
-        
-        
-        nickname_len = len(real_nickname_list)
-        message_len = len(real_message_list)
+        nickname_len = len(nickname_list)
+        message_len = len(message_list)
+        # 除了最開始, 理論上不會再觸發的東西, 舊方法抓不到元素會被清除陣列, 但新方法理論不會發生
         if message_len <= 0 or nickname_len <= 0:
             print('Error continue')
             continue
         
         if is_sticky_message == 1:
-            real_nickname_list.pop()
-            real_message_list.pop()
-            message_len = message_len - 1
-            nickname_len = nickname_len - 1
-        min_length_test = min(nickname_len, message_len)
+            nickname_list.pop()
+            message_list.pop()
         
-        # print('Before')
-        # print(real_message_list)
-        # print(real_nickname_list)
-        # print(min_length_test)
-        # print(message_len)
-        # print(nickname_len)
-        # print('After')
-
-        # if len(real_message_list) != len(real_nickname_list):
-        #     print(real_message_list)
-        #     print(real_nickname_list)
-
-        # 刪除訊息存在 但暱稱不存在的狀況 並過濾訊息內的暱稱
-        # index = 0
-        # while index < min_length_test:
-        #     tmp_nickname = real_nickname_list[index]+' '
-        #     start_index = real_message_list[index].find(tmp_nickname)
-        #     if start_index == -1:
-        #         real_message_list.pop(index)
-        #         continue
-        #     real_message_list[index] = real_message_list[index][start_index+len(real_nickname_list[index])+1:]
-        #     index = index + 1
-        
-        # 長度不一致
-        # if message_len != nickname_len:
-        #     real_message_list = real_message_list[0:nickname_len]
-        
-        print(real_message_list)
-        print(real_nickname_list)
-        
-        # 印出所有訊息
-        message_list = real_message_list.copy ()
-        # # 檢查頭 4 個和尾 4 個如果一致就排除頭 4 個 (FB的神奇特性)
-        # is_remove = 0
-        # for index in range (facebook_magic_number):
-        #     if message_list[index] == message_list[-1-index] or message_list[index] == '':
-        #         is_remove = is_remove + 1
-        # if is_remove == facebook_magic_number:
-        #     for index in range (is_remove):
-        #         message_list.pop (0)
-        #         real_nickname_list.pop (0)
+        print(message_list)
+        print(nickname_list)
         
         start_index = search_old_message_in_new_message_index (last_message_list, message_list)
         last_message_list = last_message_list[start_index:len (last_message_list)]
@@ -270,8 +197,8 @@ def start_parser_facebook_chat (fb_driver):
         # 印出訊息
         for index in range(len(last_message_list), len(message_list)):
             message = message_list[index]
-            write_message (real_nickname_list[index], message, message_from_FB)
-            print ('{}:{}'.format (real_nickname_list[index], message))
+            write_message (nickname_list[index], message, message_from_FB)
+            print ('{}: {}'.format (nickname_list[index], message))
         last_message_list = message_list.copy ()
 
 # ======================================================
@@ -297,7 +224,7 @@ async def on_message (message):
     text = message.content
     # 訊息若為關閉 Bot 且來源為指定使用者
     if text == '!clean_token' and message.author.id == discord_author_id:
-        clean_data = {'data':None, "op_code": 'clean_session'}
+        clean_data = {'data':'', "op_code": 'clean_session'}
         req = requests_object.post(api_url, data=clean_data)
         if req.status_code != 200:
             print ('clean_token fail')
@@ -307,6 +234,7 @@ async def on_message (message):
         print ('接收到關閉指令 現在離開')
         await bot_client.close()
     write_message (message.author.name, text, message_from_discord)
+    print ('{}: {}'.format (message.author.name, text))
 
 # ======================================================
 # Twitch 擷取聊天室訊息
@@ -360,6 +288,7 @@ def start_twitch_bot ():
             end_index = resp.find (message_end_str)
             message = resp[message+message_title_len:end_index]
             write_message (display_name, message, message_from_twitch)
+            print ('{}: {}'.format (display_name, message))
 
     except KeyboardInterrupt:
         sock.close()
