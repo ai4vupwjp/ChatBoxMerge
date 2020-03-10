@@ -20,7 +20,9 @@ https://www.twitchapps.com/tmi/
 或是自行產生 Token 來使用。
 
 #### 設定檔
+
 ![範例圖01](https://i.imgur.com/IOpIx6m.png)
+
 接下來需要來設定所謂的設定檔，本軟體會依照設定檔的內容做登入及頻道的進入動作，也因此需要設定
 
 1. Twitch 頻道 connect_twitch_channel
@@ -39,10 +41,13 @@ https://www.twitchapps.com/tmi/
 使用 Discord 整合需先將 Discord 切換至開發者模式
 
 ![範例圖02](https://i.imgur.com/ymsUYfn.png)
+
 &ensp;
 點選上圖的左下黃色框選處
 &ensp;
+
 ![範例圖03](https://i.imgur.com/AdkzvQY.png)
+
 &ensp;
 再點選上圖點選左側 **外觀** 標籤，再開啟 **開發者模式** 即可完成。
 &ensp;
@@ -68,18 +73,25 @@ https://discordapp.com/developers/applications
 &ensp;
 
 ![範例圖06](https://i.imgur.com/PHqWl4N.png)
+
 &ensp;
 取名完會來到上圖這個畫面，點選左側 **Bot** 的標籤
 &ensp;
+
 ![範例圖07](https://i.imgur.com/yTz7YCG.png)
+
 &ensp;
 來到上圖這個畫面後，再點右側 Add Bot，他會再次詢問你是否要執行，按是。
 &ensp;
+
 ![範例圖08](https://i.imgur.com/ZVtIkEC.png)
+
 &ensp;
 完成後再次點擊左側 OAuth2 標籤，來到此頁面，將 Bot 選項勾起。
 &ensp;
+
 ![範例圖09](https://i.imgur.com/8ptKN0s.png)
+
 &ensp;
 勾起後往底下滾動可以看到該 Bot 的權限，可以勾選需要的權限，目前 **不需要任何權限，所以不需要勾選任何權限。** 所以按下 Copy 複製此網頁產生的網址。
 &ensp;
@@ -97,10 +109,13 @@ https://discordapp.com/developers/applications
 
 
 ![範例圖11](https://i.imgur.com/W0PXel5.png)
+
 &ensp;
 需要監聽的頻道 ID 只要有開啟開發者模式對頻道按右按即可看到 **複製ID** 的選項。
 &ensp;
+
 ![範例圖12](https://i.imgur.com/QKA6d7p.png)
+
 &ensp;
 登入用憑證 可以至剛剛到訪過的 Bot 網頁點選 copy 複製貼上即可。
 &ensp;
