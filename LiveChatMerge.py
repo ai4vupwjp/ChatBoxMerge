@@ -1,15 +1,12 @@
 import discord
-import webbrowser
-from selenium import webdriver
 import socket
 import threading
 import json
 import time
 import requests
 
-import socket
 import subprocess
-from selenium.webdriver.support.ui import WebDriverWait
+
 import configparser
 import codecs
 
@@ -191,7 +188,12 @@ def start_parser_facebook_chat(fb_webview):
         print(req)
         print(req.text)
     live_video_node = json.loads(req.text)
-    live_video_id = live_video_node['data'][0]['id']
+    live_video_id = None
+    # 這段程式碼待驗證
+    for item in live_video_node['data']:
+        if item['status'] == 'live':
+            live_video_id = item['id']
+            break
     print(live_video_id)
     # live_video_id = 2648572082037444
     
