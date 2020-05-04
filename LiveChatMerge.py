@@ -30,7 +30,6 @@ config.read_file(codecs.open('conf.ini', 'r', 'UTF-8'))
 sleep_time = int(config['process_variables']['sleep_time'])
 # 重載 FB 聊天室的頻率設定
 reload_fb_chatbox_times = int(config['process_variables']['reload_fb_chatbox_times'])
-is_sticky_message = int(config['env']['is_sticky_message'])
 # 會常常用到的常數設定
 discord_channel_id = config['env']['discord_channel_id']
 discord_author_id = config['env']['discord_author_id']
@@ -83,7 +82,9 @@ async def on_ready ():
 @bot_client.event
 async def on_message (message):
     # 不是目標來源的訊息略過
-    if message.channel.id != discord_channel_id:
+    if message.channel.id != int(discord_channel_id):
+        print(message.channel.id)
+        print(discord_channel_id)
         return
     
     # 確認訊息
@@ -170,8 +171,10 @@ def start_parser_facebook_chat(fb_webview):
     time.sleep(int(config['process_variables']['sleep_time']))
     fb_url = fb_webview.get_current_url()
     fb_webview.destroy()
+    print(fb_url)
     fb_url = urlparse(fb_url)
     fb_url = parse_qs(fb_url.fragment)
+    print(fb_url)
     access_token = fb_url['access_token'].pop()
     print('Access_token')
     print(access_token)
@@ -179,19 +182,25 @@ def start_parser_facebook_chat(fb_webview):
     if req.status_code > 200:
         print(req)
         print(req.text)
-    
+    is_facebook_page = int(config['env']['is_facebook_page'])
     me = json.loads(req.text)
     user_id = me['id']
-    
+    if is_facebook_page == 1:
+        req = requests.get(f'https://graph.facebook.com/v6.0/{user_id}/accounts?access_token={access_token}')
+        print('Test')
+        print(req.text)
+        me = json.loads(req.text)
+        user_id = me['data'].pop(0)['id']
     req = requests.get(f'https://graph.facebook.com/v6.0/{user_id}/live_videos?access_token={access_token}')
     if req.status_code > 200:
         print(req)
         print(req.text)
+    print(req.text)
     live_video_node = json.loads(req.text)
     live_video_id = None
     # 這段程式碼待驗證
     for item in live_video_node['data']:
-        if item['status'] == 'live':
+        if item['status'] == 'LIVE':
             live_video_id = item['id']
             break
     print(live_video_id)
