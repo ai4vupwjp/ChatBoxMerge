@@ -194,7 +194,6 @@ User Data Permissions 是一個大項目，再選取其中的細項 user_videos
 
 ![範例圖20](https://i.imgur.com/HPmlpZm.png)
 
-
 #### 設定檔
 
 ![範例圖21](https://i.imgur.com/B16B0s2.png)
@@ -214,7 +213,20 @@ User Data Permissions 是一個大項目，再選取其中的細項 user_videos
 
 ![範例圖22](https://i.imgur.com/KsWttmL.png)
 
-安裝好後，對 **本機 (W10 作業系統)** 或 我的電腦 () 右鍵點選內容。
+下載好後，解壓縮會出現資料夾，內應該有一隻 php.exe 的檔案，
+
+![範例圖23](https://i.imgur.com/q4BFPZ5.png)
+
+同樣路徑下，會有一隻 php.ini 的檔案，使用 記事本 或 VSCode 或 Notepad++ 開啟編輯，如下圖。
+
+![範例圖24](https://i.imgur.com/EtsDWGy.png)
+
+找到 **;session.save_path = "/tmp"**
+將後面的路徑修改成 本軟體的 tmp 路徑，並將最前面的分號 **;** 移除(若原本就無則不需要)如下圖。
+
+![範例圖25](https://i.imgur.com/WDF7pe6.png)
+
+以上都完成後，對 **本機 (W10 作業系統)** 或 電腦 (不確定 Win7 的名稱) **右鍵** 點選 **內容**。
 之後搭配圖片按照步驟操作
 
 1. 點選 進階系統設定 會跳出系統內容
@@ -223,8 +235,8 @@ User Data Permissions 是一個大項目，再選取其中的細項 user_videos
 4. 點選 編輯 跳出編輯環境變數選單
 5. 點選 新增 後底下會新增空白
 
-![範例圖23](https://i.imgur.com/GvUDTpx.png)
-![範例圖24](https://i.imgur.com/PaOROgr.png)
+![範例圖26](https://i.imgur.com/GvUDTpx.png)
+![範例圖27](https://i.imgur.com/PaOROgr.png)
 
 6. 點選 瀏覽 選擇剛剛下載下來的 php 檔案解壓縮後的資料夾
 7. 將剛剛的視窗全部點選完成
