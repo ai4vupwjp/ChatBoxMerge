@@ -6,6 +6,7 @@ import time
 import requests
 
 import subprocess
+import os
 
 import configparser
 import codecs
@@ -37,6 +38,7 @@ is_merge_twitch = int(config['process_variables']['is_merge_twitch'])
 is_merge_facebook = int(config['process_variables']['is_merge_facebook'])
 is_merge_discord = int(config['process_variables']['is_merge_discord'])
 is_write_log = int(config['process_variables']['is_write_log'])
+is_remove_old_session_file = int(config['process_variables']['is_remove_old_session_file'])
 # 常數設定
 message_from_discord = 0
 message_from_twitch = 1
@@ -47,6 +49,9 @@ address = socket.gethostbyname(hostname)
 address = '127.0.0.1'
 port = int(config['process_variables']['port'])
 print('IP: ' + str(address))
+
+if is_remove_old_session_file == 1 and os.path.isfile('./tmp/sess_b9jc4kekq6idnvsjdo7sf57t3f'):
+    os.remove('./tmp/sess_b9jc4kekq6idnvsjdo7sf57t3f')
 
 proc = subprocess.Popen('php -S {}:{}'.format(address, port), bufsize=0)
 # proc.kill()

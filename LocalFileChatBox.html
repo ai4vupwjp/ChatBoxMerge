@@ -25,14 +25,14 @@
     var htmltag_remove_time = [];
     var unix_time = Math.floor(Date.now() / 1000);
 
-    // 每次去訪問的間隔時間, 訊息滯留時間
-    const chatbox_reflash_intervals_time = 2000;
+    // 是否移除訊息
+    const is_need_remove = false;
+    // 訊息滯留時間 單位: 秒
     const message_stay_time = 30;
+    // 每次去訪問的間隔時間 單位: 毫秒
+    const chatbox_reflash_intervals_time = 2000;
     // 圖像的檔案名稱
     const image_src = {'0':'Discord','1':'twitch02','2':'FB','DC':'Discord'};
-
-    const is_need_remove = false;
-    // todo: 圖像的路徑 path
 
     // 讓訊息加入至畫面上
     function add_message (nickname, message, score, remove_time)
@@ -73,6 +73,7 @@
                 htmltag_list[index].innerHTML = '<tr><td></td></tr>';
                 htmltag_remove_time[index] = null;
             }
+            // 時間到達的就移除
             htmltag_list.splice(0, index);
             htmltag_remove_time.splice(0, index);
         }
@@ -99,6 +100,12 @@
             console.log ('Done');
             console.log (resultMsg);
             setTimeout(request_message, chatbox_reflash_intervals_time);
+            if (resultMsg['op_code'] == 'clean_message') {
+                message_list = [];
+                score_list = [];
+                nickname_list = [];
+                return;
+            }
             if (resultMsg['message_list'].length <= 0) {
                 return;
             }
