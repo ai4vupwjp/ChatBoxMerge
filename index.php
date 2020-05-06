@@ -38,12 +38,24 @@ if ($_POST['op_code'] === 'add_message') {
 if ($_POST['op_code'] === 'get_message') {
     // $return_data['message_list'] = $_SESSION['message_list'];
     // $_POST['data']
-    $return_data['nickname_list'] = $_SESSION['nickname_list'];
-    $return_data['message_list'] = $_SESSION['message_list'];
-    $return_data['score_list'] = $_SESSION['score_list'];
-    $_SESSION['nickname_list'] = [];
-    $_SESSION['message_list'] = [];
-    $_SESSION['score_list'] = [];
+    $return_data['nickname_list'] = [];
+    $return_data['message_list'] = [];
+    $return_data['score_list'] = [];
+    if (array_key_exists('message_list', $_SESSION) === false) {
+        echo json_encode ($return_data);
+        return;
+    }
+    if (count ($_SESSION['message_list']) <= $_POST['data']) {
+        echo json_encode ($return_data);
+        return;
+    }
+    $return_data['nickname_list'] = array_slice($_SESSION['nickname_list'], $_POST['data']);
+    $return_data['message_list'] = array_slice($_SESSION['message_list'], $_POST['data']);
+    $return_data['score_list'] = array_slice($_SESSION['score_list'], $_POST['data']);
+    // 不清除的做法
+    // $_SESSION['nickname_list'] = [];
+    // $_SESSION['message_list'] = [];
+    // $_SESSION['score_list'] = [];
     echo json_encode ($return_data);
     return;
 }

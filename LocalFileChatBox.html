@@ -83,12 +83,16 @@
             'op_code': 'get_message',
             'data': message_list.length
         }
+        // json_data = [];
+        // json_data['op_code'] = 'get_message';
+        // json_data['data'] = message_list.length;
+        // json_data = JSON.stringify(json_data);
         // url: "http://114.45.8.85:8000/index.php",
         let request = $.ajax({
-            url: "http://127.0.0.1:8000/index.php",
-            type: "post",
+            url: "http://127.0.0.1:7000/index.php",
+            method: "POST",
             data: json_data,
-            dataType: "json"
+            dataType: "json",
         });
         // 發送成功 根據回傳資料 做事
         request.done(function(resultMsg) {
